@@ -654,3 +654,226 @@ pulbic class Something {
 (02) x.isSyncA()与y.isSyncA()		     可以同步
 (03) x.cSyncA()与y.cSyncB()                       不可以同步
 (04) x.isSyncA()与Something.cSyncA()       可以同步
+### 4. Java多线程中的常用方法
+
+   start,run,sleep,wait,notify,notifyAll,join,isAlive,currentThread,interrupt
+
+  1)start方法
+
+​     用于启动一个线程，使相应的线程进入排队等待状态。一旦轮到它使用CPU的资源的时候，它就可以脱离它的主线程而独立开始
+
+​     自己的生命周期了。注意即使相应的线程调用了start方法，但相关的线程也不一定会立刻执行，调用start方法的主要目的是使
+
+​      当前线程进入排队等待。不一定就立刻得到cpu的使用权限...
+
+  2)run方法
+
+​     Thread类和Runnable接口中的run方法的作用相同，都是系统自动调用而用户不得调用的。
+
+  3)sleep和wait方法
+
+​     Sleep：是Java中Thread类中的方法，会使当前线程暂停执行让出cpu的使用权限。但是监控状态依然存在，即如果当前线程
+
+​    进入了同步锁的话，sleep方法并不会释放锁，即使当前线程让出了cpu的使用权限，但其它被同步锁挡在外面的线程也无法获
+
+​    得执行。待到sleep方法中指定的时间后，sleep方法将会继续获得cpu的使用权限而后继续执行之前sleep的线程。
+
+​     Wait：是Object类的方法，wait方法指的是一个已经进入同步锁的线程内，让自己暂时让出同步锁，以便其它正在等待此同步
+
+​    锁的线程能够获得机会执行。，只有其它方法调用了notify或者notifyAll(需要注意的是调用notify或者notifyAll方法并不释放
+
+​    锁，只是告诉调用wait方法的其它 线程可以参与锁的竞争了..)方法后,才能够唤醒相关的线程。此外注意wait方法必须在同步关
+
+​    键字修饰的方法中才能调用。
+
+​      为了更好的理解上面的内容，请看下面的代码：
+
+   
+
+```java
+package com.yonyou.test;
+```
+
+```java
+/**
+ * 测试类
+ */
+```
+
+ 
+
+```java
+public class Test{
+    public static void main(String[] args){
+        //启动线程一
+       new Thread(new Thread1()).start();
+           try{
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+           new Thread(new Thread2()).start();
+    }
+}
+```
+
+ 
+
+```java
+ /**
+  * 线程一的实体类
+  */
+class Thread1 implements Runnable{ 
+    @Override
+    public void run() {
+    //由于这里的Thread1和Thread2的两个run方法调用的是同一个对象监视器，所以这里面就不能使用this监视器了
+    //因为Thread1的this和Thread2的this指的不是同一个对象。为此我们使用Test这个类的字节码作为相应的监视器
+    synchronized(Test.class){
+        System.out.println("enter thread1...");
+        System.out.println("thread1 is waiting...");
+        try {
+            //释放同步锁有两种方式一种是程序自然的离开synchronized的监视范围，另外一种方式在synchronized管辖的返回内调用了
+            //wait方法,这里就使用wait方法来释放同步锁，
+            Test.class.wait();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.out.println("thread1 is going on ...");
+        System.out.println("thread1 is being over ...");
+    }
+    }
+}
+```
+
+ 
+
+ 
+
+```java
+/**
+ * 线程二的实体类
+ */
+class Thread2 implements Runnable{ 
+    @Override
+    public void run() {
+        synchronized(Test.class){
+            System.out.println("enter thread2 ...");
+            System.out.println("thread2 notify other thread can release wait sattus ...");
+            //由于notify不会释放同步锁，即使thread2的下面调用了sleep方法，thread1的run方法仍然无法获得执行,原因是thread2
+            //没有释放同步锁Test
+            Test.class.notify();
+            System.out.println("thread2 is sleeping ten millisecond ...");
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            System.out.println("thread2 is going on ...");
+            System.out.println("thread2 is being over ...");
+        }
+        
+    }
+}
+```
+
+  4) notify和notifyAll
+
+​      释放因为调用wait方法而正在等待中的线程。notify和notifyAll的唯一区别在于notify唤醒某个正在等待的线程。而notifyAll会唤醒
+
+​     所有正在等等待的线程。需要注意的是notify和notifyAll并不会释放对应的同步锁哦。
+
+  5) isAlive
+
+​      检查线程是否处于执行状态。在当前线程执行完run方法之前调用此方法会返回true。
+
+​      在run方法执行完进入死亡状态后调用此方法会返回false。
+
+  6)currentThread
+
+​     Thread类中的方法，返回当前正在使用cpu的那个线程。
+
+   7)intertupt
+
+​     吵醒因为调用sleep方法而进入休眠状态的方法，同时会抛出InterrruptedException哦。
+
+   8）join
+
+​      线程联合 例如一个线程A在占用cpu的期间，可以让其它线程调用join()和本地线程联合。
+
+### 5.  volatile
+
+- 原子性：即一个操作或者多个操作 要么全部执行并且执行的过程不会被任何因素打断，要么就都不执行。
+- 可见性是指当多个线程访问同一个变量时，一个线程修改了这个变量的值，其他线程能够立即看得到修改的值。
+- 有序性：即程序执行的顺序按照代码的先后顺序执行。
+- ​    指令重排序，一般来说，处理器为了提高程序运行效率，可能会对输入代码进行优化，它不保证程序中各个语句的执行先后顺    序同代码中的顺序一致，但是它会保证程序最终执行结果和代码顺序执行的结果是一致的。（指令重排序不会影响单个线程的执行，但是会影响到线程并发执行的正确性。）
+
+**对于可见性，Java提供了volatile关键字来保证可见性。**
+
+　　当一个共享变量被volatile修饰时，它会保证修改的值会立即被更新到主存，当有其他线程需要读取时，它会去内存中读取新值。
+
+　　而普通的共享变量不能保证可见性，因为普通共享变量被修改之后，什么时候被写入主存是不确定的，当其他线程去读取时，此时内存中可能还是原来的旧值，因此无法保证可见性。
+
+　　另外，通过synchronized和Lock也能够保证可见性，synchronized和Lock能保证同一时刻只有一个线程获取锁然后执行同步代码，并且在释放锁之前会将对变量的修改刷新到主存当中。因此可以保证可见性。
+
+#### 5.1 happens-before原则（先行发生原则）：
+
+- 程序次序规则：一个线程内，按照代码顺序，书写在前面的操作先行发生于书写在后面的操作
+- 锁定规则：一个unLock操作先行发生于后面对同一个锁额lock操作
+- volatile变量规则：对一个变量的写操作先行发生于后面对这个变量的读操作
+- 传递规则：如果操作A先行发生于操作B，而操作B又先行发生于操作C，则可以得出操作A先行发生于操作C
+- 线程启动规则：Thread对象的start()方法先行发生于此线程的每个一个动作
+- 线程中断规则：对线程interrupt()方法的调用先行发生于被中断线程的代码检测到中断事件的发生
+- 线程终结规则：线程中所有的操作都先行发生于线程的终止检测，我们可以通过Thread.join()方法结束、Thread.isAlive()的返回值手段检测到线程已经终止执行
+- 对象终结规则：一个对象的初始化完成先行发生于他的finalize()方法的开始
+
+#### 5.2 深入剖析volatile
+
+##### 5.2.1 volatile关键字的两层语义
+
+　　一旦一个共享变量（类的成员变量、类的静态成员变量）被volatile修饰之后，那么就具备了两层语义：
+
+　　1）保证了不同线程对这个变量进行操作时的可见性，即一个线程修改了某个变量的值，这新值对其他线程来说是立即可见的。
+
+　　2）禁止进行指令重排序。
+
+**volatile保证可见性**
+
+1. 使用volatile关键字会强制将修改的值立即写入主存；
+2. 使用volatile关键字的话，当线程2进行修改时，会导致线程1的工作内存中缓存变量stop的缓存行无效（反映到硬件层的话，就是CPU的L1或者L2缓存中对应的缓存行无效）；
+3. 由于线程1的工作内存中缓存变量stop的缓存行无效，所以线程1再次读取变量stop的值时会去主存读取。
+
+**volatile无法保证对变量的操作是原子性**
+
+**volatile能保证有序性**
+
+volatile关键字能禁止指令重排序，所以volatile能在一定程度上保证有序性。
+
+　　volatile关键字禁止指令重排序有两层意思：
+
+　　1）当程序执行到volatile变量的读操作或者写操作时，在其前面的操作的更改肯定全部已经进行，且结果已经对后面的操作可见；在其后面的操作肯定还没有进行；
+
+　　2）在进行指令优化时，不能将在对volatile变量访问的语句放在其后面执行，也不能把volatile变量后面的语句放到其前面执行。
+
+##### 5.2.2 volatile的原理和实现机制
+
+　　前面讲述了源于volatile关键字的一些使用，下面我们来探讨一下volatile到底如何保证可见性和禁止指令重排序的。
+
+　　下面这段话摘自《深入理解Java虚拟机》：
+
+　　“观察加入volatile关键字和没有加入volatile关键字时所生成的汇编代码发现，加入volatile关键字时，会多出一个lock前缀指令”
+
+　　lock前缀指令实际上相当于一个内存屏障（也成内存栅栏），内存屏障会提供3个功能：
+
+　　1）它确保指令重排序时不会把其后面的指令排到内存屏障之前的位置，也不会把前面的指令排到内存屏障的后面；即在执行到内存屏障这句指令时，在它前面的操作已经全部完成；
+
+　　2）它会强制将对缓存的修改操作立即写入主存；
+
+　　3）如果是写操作，它会导致其他CPU中对应的缓存行无效。
+
+##### 5.2.3 volatile关键字的场景
+
+　synchronized关键字是防止多个线程同时执行一段代码，那么就会很影响程序执行效率，而volatile关键字在某些情况下性能要优于synchronized，但是要注意volatile关键字是无法替代synchronized关键字的，因为volatile关键字无法保证操作的原子性。通常来说，使用volatile必须具备以下2个条件：
+
+　　1）对变量的写操作不依赖于当前值
+
+　　2）该变量没有包含在具有其他变量的不变式中
