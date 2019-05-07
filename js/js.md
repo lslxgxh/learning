@@ -298,6 +298,7 @@ bar();
 
 ## 2 原型链
 http://www.ruanyifeng.com/blog/2011/06/designing_ideas_of_inheritance_mechanism_in_javascript.html
+https://juejin.im/post/58f94c9bb123db411953691b
 
 ## 3 闭包
 http://www.ruanyifeng.com/blog/2009/08/learning_javascript_closures.html
