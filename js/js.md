@@ -296,3 +296,8 @@ bar();
 
 关键的差异：词法作用域是编写时的，而动态作用域（和 `this`）是运行时的。词法作用域关心的是 *函数在何处被声明*，但是动态作用域关心的是函数 *从何处* 被调用。
 
+## 2 原型链
+http://www.ruanyifeng.com/blog/2011/06/designing_ideas_of_inheritance_mechanism_in_javascript.html
+
+## 3 闭包
+http://www.ruanyifeng.com/blog/2009/08/learning_javascript_closures.html
