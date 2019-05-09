@@ -310,3 +310,5 @@ http://www.ruanyifeng.com/blog/2012/11/require_js.html
 
 ## 5 ES6
 https://es6.ruanyifeng.com/
+30分钟搞定es6重点
+https://juejin.im/entry/58f21df95c497d006c87469e
