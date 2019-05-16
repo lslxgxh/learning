@@ -312,3 +312,7 @@ http://www.ruanyifeng.com/blog/2012/11/require_js.html
 https://es6.ruanyifeng.com/
 30分钟搞定es6重点
 https://juejin.im/entry/58f21df95c497d006c87469e
+
+## ajax
+知识点 https://javascript.ruanyifeng.com/bom/ajax.html
+面试 https://blog.csdn.net/shuidinaozhongyan/article/details/71480872
