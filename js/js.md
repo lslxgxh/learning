@@ -314,5 +314,5 @@ https://es6.ruanyifeng.com/
 https://juejin.im/entry/58f21df95c497d006c87469e
 
 ## ajax
-知识点 https://javascript.ruanyifeng.com/bom/ajax.html
+知识点 https://javascript.ruanyifeng.com/bom/ajax.html 
 面试 https://blog.csdn.net/shuidinaozhongyan/article/details/71480872
